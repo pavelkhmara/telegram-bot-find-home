@@ -1,11 +1,17 @@
 import asyncpg
 import json
+from dotenv import load_dotenv
 import os
 
+load_dotenv()
+db = os.getenv("db")
+db_user = os.getenv("db_user")
+user_password = os.getenv("user_password")
+
 DB_CONFIG = {
-    "user": "bot_user",
-    "password": "bot_password",
-    "database": "find_home_bot",
+    "user": db_user,
+    "password": user_password,
+    "database": db,
     "host": "localhost",
     "port": 5432
 }
@@ -48,3 +54,18 @@ async def load_filter(user_id: int) -> dict | None:
     async with pool.acquire() as conn:
         row = await conn.fetchrow("SELECT filter_data FROM filters WHERE user_id = $1", user_id)
         return dict(row["filter_data"]) if row else None
+
+async def save_filter_to_db(user_id: int, filter_data: dict):
+    conn = await asyncpg.connect(
+        user='bot_user',
+        password='...',
+        database='find_home_bot',
+        host='localhost'
+    )
+    await conn.execute("""
+        INSERT INTO filters (user_id, filter_data, created_at, updated_at)
+        VALUES ($1, $2, now(), now())
+        ON CONFLICT (user_id)
+        DO UPDATE SET filter_data = EXCLUDED.filter_data, updated_at = now()
+    """, user_id, filter_data)
+    await conn.close()
