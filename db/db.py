@@ -53,4 +53,4 @@ async def load_filter(user_id: int) -> dict | None:
     pool = await get_pool()
     async with pool.acquire() as conn:
         row = await conn.fetchrow("SELECT filter_data FROM filters WHERE user_id = $1", user_id)
-        return dict(row["filter_data"]) if row else None
+        return row["filter_data"] if row else None
