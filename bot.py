@@ -9,6 +9,7 @@ from telegram.ext import Application, CommandHandler, MessageHandler, ContextTyp
 from filters.conversation import get_filter_conversation_handler
 from data.static import MAIN_MENU
 from filters.logic import init_filter
+from filters.search import search_and_send
 
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
@@ -47,6 +48,7 @@ def main():
 
     app.add_handler(CommandHandler('start', start))
     app.add_handler(CommandHandler('showfilter', show_filter))
+    app.add_handler(CommandHandler('search', search_and_send))
     app.add_handler(get_filter_conversation_handler())
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_selection))
 
