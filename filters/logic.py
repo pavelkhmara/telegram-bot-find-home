@@ -1,7 +1,7 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, ReplyKeyboardRemove
 from telegram.ext import ContextTypes, ConversationHandler
 from data.static import CITIES, PROPERTY_TYPES, ROOM_OPTIONS, YES_NO_SKIP
-from db.db import save_filter_to_db
+from db.db import save_filter
 
 G_CITY, G_PRICE, G_ROOMS, G_TYPE, G_FURNISHED, G_PETS, G_AREA = range(7)
 
@@ -80,8 +80,8 @@ async def handle_area(update: Update, context: ContextTypes.DEFAULT_TYPE):
     result = context.user_data['filter']
     user_id = update.effective_user.id
     filter_data = context.user_data.get("filter", {})
-    
-    await save_filter_to_db(user_id, filter_data)
+
+    await save_filter(user_id, filter_data)
 
     await update.message.reply_text(f"Фильтр сохранён ✅\n{result}", reply_markup=ReplyKeyboardRemove())
     return ConversationHandler.END

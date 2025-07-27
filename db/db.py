@@ -54,18 +54,3 @@ async def load_filter(user_id: int) -> dict | None:
     async with pool.acquire() as conn:
         row = await conn.fetchrow("SELECT filter_data FROM filters WHERE user_id = $1", user_id)
         return dict(row["filter_data"]) if row else None
-
-async def save_filter_to_db(user_id: int, filter_data: dict):
-    conn = await asyncpg.connect(
-        user='bot_user',
-        password='...',
-        database='find_home_bot',
-        host='localhost'
-    )
-    await conn.execute("""
-        INSERT INTO filters (user_id, filter_data, created_at, updated_at)
-        VALUES ($1, $2, now(), now())
-        ON CONFLICT (user_id)
-        DO UPDATE SET filter_data = EXCLUDED.filter_data, updated_at = now()
-    """, user_id, filter_data)
-    await conn.close()
