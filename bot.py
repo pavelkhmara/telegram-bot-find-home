@@ -4,7 +4,7 @@ import os
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
-from db import init_db
+from db.db import init_db
 import asyncio
 
 from telegram import Update, ReplyKeyboardMarkup
