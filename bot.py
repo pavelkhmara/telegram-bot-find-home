@@ -1,8 +1,6 @@
+import asyncio
 from dotenv import load_dotenv
 import os
-
-load_dotenv()
-BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 from db.db import init_db
 from telegram import Update, ReplyKeyboardMarkup
@@ -11,6 +9,9 @@ from telegram.ext import Application, CommandHandler, MessageHandler, ContextTyp
 from filters.conversation import get_filter_conversation_handler
 from data.static import MAIN_MENU
 from filters.logic import init_filter
+
+load_dotenv()
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -39,10 +40,8 @@ async def show_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Текущий фильтр: \n" + "\n".join(lines))
 
 
-def main():
-    import asyncio
-    asyncio.run(init_db())
-
+async def main():
+    await init_db()
     app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler('start', start))
@@ -51,8 +50,10 @@ def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_selection))
 
     print("✅ Бот запущен")
-    app.run_polling()
+    await app.run_polling()
 
 
 if __name__ == '__main__':
-    main()
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    loop.run_until_complete(main())
