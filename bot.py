@@ -1,18 +1,17 @@
 from dotenv import load_dotenv
 import os
-
-load_dotenv()
-BOT_TOKEN = os.getenv("BOT_TOKEN")
-
-from db.db import init_db
 import asyncio
 
+from db.db import init_db
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
 from filters.conversation import get_filter_conversation_handler
 from data.static import MAIN_MENU
 from filters.logic import init_filter
+
+load_dotenv()
+BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
@@ -37,7 +36,9 @@ async def show_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
     lines = [f"{key.replace('_', ' ').capitalize()}: {value}" for key, value in f.items() if value is not None]
     await update.message.reply_text("Текущий фильтр: \n" + "\n".join(lines))
 
-def main():
+async def main():
+    await init_db()
+
     app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler('start', start))
@@ -45,9 +46,10 @@ def main():
     app.add_handler(get_filter_conversation_handler())
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_selection))
 
-    asyncio.run(init_db())
-    
-    app.run_polling()
+    await app.initialize()
+    await app.start()
+    await app.updater.start_polling()
+    await app.updater.wait_for_stop()
 
 if __name__ == '__main__':
-    main()
+    asyncio.run(main())
