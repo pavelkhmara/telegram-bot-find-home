@@ -1,6 +1,6 @@
-import asyncio
 from dotenv import load_dotenv
 import os
+import asyncio
 
 from db.db import init_db
 from telegram import Update, ReplyKeyboardMarkup
@@ -40,8 +40,9 @@ async def show_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Текущий фильтр: \n" + "\n".join(lines))
 
 
-async def main():
-    await init_db()
+def main():
+    asyncio.run(init_db())
+
     app = Application.builder().token(BOT_TOKEN).build()
 
     app.add_handler(CommandHandler('start', start))
@@ -50,10 +51,8 @@ async def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_selection))
 
     print("✅ Бот запущен")
-    app.run_polling()
+    app.run_polling()  # НЕ await
 
 
 if __name__ == '__main__':
-    import asyncio
-    asyncio.run(main())
-
+    main()
