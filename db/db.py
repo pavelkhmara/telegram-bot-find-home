@@ -49,8 +49,13 @@ async def save_filter(user_id: int, data: dict):
         DO UPDATE SET filter_data = $2, updated_at = now()
         """, user_id, json.dumps(data))
 
-async def load_filter(user_id: int) -> dict | None:
+async def load_filter(user_id):
     pool = await get_pool()
     async with pool.acquire() as conn:
         row = await conn.fetchrow("SELECT filter_data FROM filters WHERE user_id = $1", user_id)
-        return row["filter_data"] if row else None
+        if row:
+            filter_data = row["filter_data"]
+            if isinstance(filter_data, str):
+                return json.loads(filter_data)
+            return filter_data
+        return None
