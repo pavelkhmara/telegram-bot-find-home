@@ -1,6 +1,7 @@
 from dotenv import load_dotenv
 import os
 import asyncio
+import logging
 
 from db.db import init_db
 from telegram import Update, ReplyKeyboardMarkup
@@ -14,6 +15,12 @@ from filters.search import search_and_send
 load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
+logging.basicConfig(
+    filename='bot.log',
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(name)s - %(message)s',
+)
+logger = logging.getLogger(__name__)
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(

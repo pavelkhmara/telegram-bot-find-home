@@ -1,6 +1,9 @@
 from scrapers.olx import fetch_olx_offers
 from telegram import Update
 from telegram.ext import ContextTypes
+import logging
+
+logger = logging.getLogger(__name__)
 
 async def search_and_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_id = update.effective_user.id
@@ -21,3 +24,5 @@ async def search_and_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for offer in offers:
         text = f"📌 <b>{offer['title']}</b>\n💰 {offer['price']}\n🔗 <a href='{offer['url']}'>Смотреть</a>"
         await update.message.reply_html(text)
+
+logger.info("Получено %s объявлений с OLX для user_id=%s", len(offers), user_id)

@@ -1,8 +1,10 @@
-# scrapers/olx.py
 import httpx
 from bs4 import BeautifulSoup
 from datetime import datetime, timedelta
 import re
+
+import logging
+logger = logging.getLogger(__name__)
 
 OLX_SEARCH_URL = "https://www.olx.pl/nieruchomosci/mieszkania/wynajem/{city}/?search[filter_enum_rooms]={rooms}&search[filter_float_price%3Afrom]={price_from}&search[filter_float_price%3Ato]={price_to}"
 
@@ -20,8 +22,14 @@ def build_url(filter_data: dict):
 
 async def fetch_olx_offers(filter_data: dict):
     url = build_url(filter_data)
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(url, timeout=10)
+    try:
+        async with httpx.AsyncClient() as client:
+            resp = await client.get(url, timeout=10)
+            logger.info("Запрос к OLX: %s - статус %s", url, resp.status_code)
+    except Exception as e:
+        logger.exception("Ошибка при запросе к OLX: %s", e)
+        return []
+
     soup = BeautifulSoup(resp.text, "lxml")
 
     offers = []
