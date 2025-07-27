@@ -15,7 +15,10 @@ _pool = None
 async def get_pool():
     global _pool
     if _pool is None:
-        _pool = await asyncpg.create_pool(**DB_CONFIG)
+        _pool = await asyncpg.create_pool(
+            **DB_CONFIG,
+            server_settings={"search_path": "public"}
+        )
     return _pool
 
 async def init_db():
