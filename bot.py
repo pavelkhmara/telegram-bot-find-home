@@ -5,8 +5,6 @@ load_dotenv()
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 
 from db.db import init_db
-import asyncio
-
 from telegram import Update, ReplyKeyboardMarkup
 from telegram.ext import Application, CommandHandler, MessageHandler, ContextTypes, filters
 
@@ -41,8 +39,8 @@ async def show_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Текущий фильтр: \n" + "\n".join(lines))
 
 
-def main():
-    asyncio.run(init_db())
+async def main():
+    await init_db()
 
     app = Application.builder().token(BOT_TOKEN).build()
 
@@ -51,8 +49,10 @@ def main():
     app.add_handler(get_filter_conversation_handler())
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_selection))
 
-    app.run_polling()
+    print("✅ Бот запущен")
+    await app.run_polling()
 
 
 if __name__ == '__main__':
-    main()
+    import asyncio
+    asyncio.run(main())
