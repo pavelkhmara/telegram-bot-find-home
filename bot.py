@@ -40,8 +40,8 @@ async def show_filter(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text("Текущий фильтр: \n" + "\n".join(lines))
 
 
-async def main():
-    await init_db()
+def main():
+    init_db_sync = asyncio.get_event_loop().run_until_complete(init_db())
 
     app = Application.builder().token(BOT_TOKEN).build()
 
@@ -51,15 +51,9 @@ async def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_selection))
 
     print("✅ Бот запущен")
-    await app.run_polling()
+    app.run_polling()
+
 
 
 if __name__ == '__main__':
-    try:
-        loop = asyncio.get_event_loop()
-    except RuntimeError:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-
-    loop.run_until_complete(main())
-
+    main()
