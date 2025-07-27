@@ -50,7 +50,7 @@ async def main():
     app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_menu_selection))
 
     print("✅ Бот запущен")
-    await app.run_polling()
+    app.run_polling()
 
 
 if __name__ == '__main__':
