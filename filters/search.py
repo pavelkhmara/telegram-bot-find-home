@@ -16,6 +16,8 @@ async def search_and_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     await update.message.reply_text("Ищу подходящие объявления на OLX...")
     offers = await fetch_olx_offers(filter_data)
+    
+    logger.info("Получено %s объявлений с OLX для user_id=%s", len(offers), user_id)
 
     if not offers:
         await update.message.reply_text("Не нашлось подходящих объявлений.")
@@ -24,5 +26,4 @@ async def search_and_send(update: Update, context: ContextTypes.DEFAULT_TYPE):
     for offer in offers:
         text = f"📌 <b>{offer['title']}</b>\n💰 {offer['price']}\n🔗 <a href='{offer['url']}'>Смотреть</a>"
         await update.message.reply_html(text)
-
-logger.info("Получено %s объявлений с OLX для user_id=%s", len(offers), user_id)
+        
